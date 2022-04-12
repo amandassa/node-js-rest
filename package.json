@@ -14,6 +14,7 @@
   "author": "amandassa",
   "license": "ISC",
   "dependencies": {
+    "consign": "^0.1.6",
     "express": "^4.17.3"
   },
   "devDependencies": {
