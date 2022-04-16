@@ -4,7 +4,6 @@ module.exports = app => {
 
     app.post("/atendimentos", (req, res) => {
         const atendimento = req.body;
-        atendimentoModel.adicionar(atendimento);
-        res.send("Você está na rota de atendimentos.\nEstá realizando um post.");
+        atendimentoModel.adicionar(atendimento, res);   // res esta indo para o metodo de Atendimento
     });
 };
