@@ -3,6 +3,7 @@ const path = require("path");
 
 module.exports = (caminho, nomeArquivo, callback) => {
     const extensoesValidas = ["jpg", "jpeg", "png"];
+    console.log("CAMINHO:", caminho);
     const extensao = path.extname(caminho);
     const novoCaminho = `./assets/imagens/${nomeArquivo}${extensao}`;
     const tipoEhValido = (extensoesValidas.indexOf(extensao.substring(1)) !== -1);   // procura pelo nome da extensão após o ponto

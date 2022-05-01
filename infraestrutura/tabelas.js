@@ -5,7 +5,7 @@ class Tabelas {
         this.criarPets();
     }
     criarAtendimento () {
-        const query = "CREATE TABLE IF NOT EXISTS Atendimentos (id int NOT NULL AUTO_INCREMENT, cliente varchar(50) NOT NULL, pet varchar(20), servico varchar(20) NOT NULL, data datetime NOT NULL, dataCriacao datetime NOT NULL, status varchar(20) NOT NULL, observacoes text, PRIMARY KEY(id))";
+        const query = "CREATE TABLE IF NOT EXISTS Atendimentos (id int NOT NULL AUTO_INCREMENT, cliente varchar(11) NOT NULL, pet varchar(20), servico varchar(20) NOT NULL, data datetime NOT NULL DEFAULT '1970-01-01 00:00:00', dataCriacao datetime NOT NULL DEFAULT '1970-01-01 00:00:00', status varchar(20) NOT NULL, observacoes text, PRIMARY KEY(id))";
         this.conexao.query(query, (err) => {
             if (err) {
                 console.log(err);

@@ -1,9 +1,10 @@
+const { default: axios } = require("axios");
 const moment = require("moment");
 const conexao = require("../infraestrutura/conexao.js");
 class Atendimento {
     adicionar (atendimento, res) {
         const dataCriacao = moment().format("YYYY-MM-DD HH:MM:SS");
-        const data = moment(atendimento.data, "DD/MM/YYYY").format("YYYY-MM-DD HH:MM:SS");      // moment vai converter ddmmyyyy->yyyymmdd
+        const data = moment(atendimento.data, "DD/MM/YYYY").format("YYYY-MM-DD HH:MM:SS");// moment vai converter ddmmyyyy->yyyymmdd
         const dataEhValida = moment(data).isSameOrAfter(dataCriacao);
         const clienteEhValido = atendimento.cliente.length >= 5;
         const validacoes = [
@@ -49,12 +50,15 @@ class Atendimento {
 
     buscarId (id, res) {
     const query = `SELECT * FROM Atendimentos WHERE ID=${id}`;
-        conexao.query(query, (err, resultados) => {
+        conexao.query(query, async (err, resultados) => {
             const atendimento = resultados[0];
+            const cpf = atendimento.cliente;
             if (err) {
                 res.status(400).json(err);
             } else {
-                res.status(200).json(atendimento)
+                const { data } = await axios.get(`http://localhost:8082/${cpf}`);
+                atendimento.cliente = data;
+                res.status(200).json(atendimento);
             }
         })
     }
