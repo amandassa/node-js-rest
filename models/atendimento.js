@@ -1,10 +1,11 @@
 const { default: axios } = require("axios");
 const moment = require("moment");
-const conexao = require("../infraestrutura/conexao.js");
+const conexao = require("../infraestrutura/database/conexao.js");
+const repositorio = require("../repositorios/atendimentos.js");
 class Atendimento {
-    adicionar (atendimento, res) {
-        const dataCriacao = moment().format("YYYY-MM-DD HH:MM:SS");
-        const data = moment(atendimento.data, "DD/MM/YYYY").format("YYYY-MM-DD HH:MM:SS");// moment vai converter ddmmyyyy->yyyymmdd
+    adicionar (atendimento) {
+        const dataCriacao = moment().format("YYYY-MM-DD hh:mm:ss");
+        const data = moment(atendimento.data, "DD/MM/YYYY").format("YYYY-MM-DD hh:mm:ss"); // moment vai converter ddmmyyyy->yyyymmdd
         const dataEhValida = moment(data).isSameOrAfter(dataCriacao);
         const clienteEhValido = atendimento.cliente.length >= 5;
         const validacoes = [
@@ -16,24 +17,23 @@ class Atendimento {
             {
                 nome: "cliente",
                 valido: clienteEhValido,
-                mensagem: "Cliente deve ter pelo menos 5 caracteres no nome."
+                mensagem: "Cliente deve ter pelo menos 5 caracter no nome."
             }
         ];
+
         const erros = validacoes.filter(campo => !campo.valido);
         const existemErros = erros.length !== 0;
 
         if (existemErros) {
-            res.status(400).json(erros);
+            return new Promise((reject) => reject(erros));
         } else {
             const atendimentoDatado = {...atendimento, data, dataCriacao};
-            const query = "INSERT INTO Atendimentos SET ?";
-            conexao.query(query, atendimentoDatado, (err, resultados) => {
-                if (err) {
-                    res.status(400).json(err); // bad request
-                } else {
-                    res.status(201).json(atendimentoDatado);   // created
-                }
-            });    
+
+            return repositorio.adiciona(atendimentoDatado)
+                .then((resultados) => {
+                    const id = resultados.insertId;
+                    return {...atendimento, id};
+                });
         }
     }
 
