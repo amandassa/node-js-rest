@@ -23,5 +23,5 @@ module.exports = app => {
     app.delete("/atendimentos/:id", (req, res) => {
         const id = parseInt(req.params.id);
         atendimentoModel.deletar(id, res);
-    })
+    });
 };
