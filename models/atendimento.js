@@ -3,25 +3,39 @@ const moment = require("moment");
 const conexao = require("../infraestrutura/database/conexao.js");
 const repositorio = require("../repositorios/atendimentos.js");
 class Atendimento {
-    adicionar (atendimento) {
-        const dataCriacao = moment().format("YYYY-MM-DD hh:mm:ss");
-        const data = moment(atendimento.data, "DD/MM/YYYY").format("YYYY-MM-DD hh:mm:ss"); // moment vai converter ddmmyyyy->yyyymmdd
-        const dataEhValida = moment(data).isSameOrAfter(dataCriacao);
-        const clienteEhValido = atendimento.cliente.length >= 5;
-        const validacoes = [
+    constructor() {
+        this.dataEhValida = ({data, dataCriacao}) => {
+            moment(data).isSameOrAfter(dataCriacao);
+        }
+        this.clienteEhValido = (tamanho) => tamanho >= 5;
+        this.valida = parametros => this.validacoes.filter(campo => {
+            const { nome } = campo
+            const parametro = parametros[nome]
+            
+            return !campo.valido(parametro);
+        });
+        this.validacoes = [
             {
                 nome: "data",
-                valido: dataEhValida,
+                valido: this.dataEhValida,
                 mensagem: "data deve ser >= data atual"
             },
             {
                 nome: "cliente",
-                valido: clienteEhValido,
+                valido: this.clienteEhValido,
                 mensagem: "Cliente deve ter pelo menos 5 caracter no nome."
             }
         ];
+    }
+    adicionar (atendimento) {
+        const dataCriacao = moment().format("YYYY-MM-DD hh:mm:ss");
+        const data = moment(atendimento.data, "DD/MM/YYYY").format("YYYY-MM-DD hh:mm:ss"); // moment vai converter ddmmyyyy->yyyymmdd
 
-        const erros = validacoes.filter(campo => !campo.valido);
+        const parametros = {
+            data: {data, dataCriacao},
+            cliente: {tamanho: atendimento.cliente.length}
+        }
+        const erros = this.valida(parametros)
         const existemErros = erros.length !== 0;
 
         if (existemErros) {
@@ -37,15 +51,8 @@ class Atendimento {
         }
     }
 
-    listar (res) {
-        const query = "SELECT * FROM Atendimentos";
-        conexao.query(query, (err, resultados) => {
-            if (err) {
-                res.status(400).json(erro);
-            } else {
-                res.status(200).json(resultados);
-            }
-        });
+    listar () {
+        return repositorio.lista();
     }
 
     buscarId (id, res) {
